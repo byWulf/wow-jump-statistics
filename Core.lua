@@ -158,8 +158,12 @@ hooksecurefunc("JumpOrAscendStart", function()
     if now - lastJump < 0.25 then return end
     if IsSwimming() or (IsFlying and IsFlying()) or UnitOnTaxi("player") then return end
     if not HasFullControl() or UnitIsDead("player") then return end
-    -- a standing mount only rears up instead of jumping
-    if IsMounted() and GetUnitSpeed("player") == 0 then return end
+    -- a standing mount only rears up instead of jumping; the speed can be a secret value
+    -- (e.g. in combat) that must not be compared, then the lift-off check below decides alone
+    if IsMounted() then
+        local speed = GetUnitSpeed("player")
+        if not (issecretvalue and issecretvalue(speed)) and speed == 0 then return end
+    end
     lastJump = now
     if IsFalling() then
         AddJump()
